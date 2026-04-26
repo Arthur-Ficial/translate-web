@@ -1,0 +1,7 @@
+corpus/files/
+data/
+site/index.html
+site/images/*
+!site/images/.gitkeep
+.DS_Store
+.wrangler/

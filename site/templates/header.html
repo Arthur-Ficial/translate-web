@@ -1,0 +1,1097 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>translate - Apple Translation from your terminal</title>
+  <meta name="description" content="translate wraps Apple's on-device Translation framework as a UNIX CLI and a drop-in HTTP server for DeepL, LibreTranslate, and Google v2. 100% on-device. No API keys. No cloud. Hard-enforced at runtime by NetworkGuard.">
+  <meta name="theme-color" content="#0F766E">
+
+  <meta property="og:title" content="translate - Apple Translation from your terminal">
+  <meta property="og:description" content="UNIX filter + drop-in HTTP server for DeepL, LibreTranslate, and Google v2. 100% on-device, no cloud, no API keys.">
+  <meta property="og:url" content="https://translate.franzai.com">
+  <meta property="og:type" content="website">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700;800&family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --teal-300: #5EEAD4;
+      --teal-400: #2DD4BF;
+      --teal-500: #14B8A6;
+      --teal-600: #0D9488;
+      --teal-700: #0F766E;
+      --teal-800: #115E59;
+      --teal-900: #134E4A;
+      --teal-950: #042F2E;
+      --coral-400: #FB7185;
+      --amber-400: #FBBF24;
+      --amber-500: #F59E0B;
+      --indigo-500: #6366F1;
+      --green-500: #22C55E;
+      --green-600: #16A34A;
+
+      --white: #FFFFFF;
+      --cream: #F8FAFA;
+      --gray-50: #F9FAFB;
+      --gray-100: #F3F4F6;
+      --gray-200: #E5E7EB;
+      --gray-300: #D1D5DB;
+      --gray-400: #9CA3AF;
+      --gray-500: #6B7280;
+      --gray-600: #4B5563;
+      --gray-700: #374151;
+      --gray-800: #1F2937;
+      --gray-900: #111827;
+
+      --term-bg: #061914;
+      --term-surface: #0E2C25;
+      --term-text: #E2F4EE;
+      --term-prompt: #5EEAD4;
+      --term-out: #4ADE80;
+      --term-dim: #6FA39A;
+
+      --font-display: 'Bricolage Grotesque', system-ui, sans-serif;
+      --font-body: 'DM Sans', system-ui, sans-serif;
+      --font-mono: 'JetBrains Mono', 'SF Mono', ui-monospace, monospace;
+      --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+
+      --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.04);
+      --shadow-md: 0 4px 12px rgba(15, 23, 42, 0.06);
+      --shadow-lg: 0 12px 32px rgba(15, 23, 42, 0.08);
+      --shadow-xl: 0 24px 64px rgba(15, 23, 42, 0.10);
+    }
+
+    html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; overflow-x: hidden; }
+    body {
+      font-family: var(--font-body);
+      color: var(--gray-800);
+      line-height: 1.65;
+      background: var(--white);
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      -webkit-tap-highlight-color: transparent;
+      position: relative;
+    }
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      pointer-events: none;
+      opacity: 0.025;
+      z-index: 0;
+      background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+    }
+    a { color: var(--teal-700); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    img { max-width: 100%; height: auto; }
+    code, pre, kbd, samp { font-family: var(--font-mono); font-size: 0.92em; }
+    pre { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+    .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; position: relative; z-index: 1; }
+    @media (max-width: 640px) { .container { padding: 0 18px; } }
+
+    /* ============== NAV ============== */
+    .nav {
+      position: fixed; top: 0; left: 0; right: 0;
+      z-index: 1000;
+      padding: 18px 0;
+      transition: background 0.3s ease, padding 0.3s ease, box-shadow 0.3s ease;
+    }
+    .nav.scrolled {
+      background: rgba(255,255,255,0.92);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      padding: 10px 0;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    .nav-inner { display: flex; align-items: center; justify-content: space-between; }
+    .nav-logo {
+      font-family: var(--font-display);
+      font-weight: 800;
+      font-size: 22px;
+      color: white;
+      transition: color 0.3s;
+    }
+    .nav.scrolled .nav-logo { color: var(--teal-700); }
+    .nav-links { display: flex; align-items: center; gap: 24px; }
+    .nav-links a { color: rgba(255,255,255,0.85); font-size: 14px; font-weight: 500; transition: color 0.2s; }
+    .nav.scrolled .nav-links a { color: var(--gray-600); }
+    .nav-links a:hover { color: white; text-decoration: none; }
+    .nav.scrolled .nav-links a:hover { color: var(--gray-900); }
+    .nav-github {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 6px 12px;
+      border-radius: 7px;
+      background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.2);
+      color: white !important;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      transition: all 0.3s;
+    }
+    .nav.scrolled .nav-github {
+      background: var(--gray-900);
+      border-color: var(--gray-900);
+    }
+    .nav-github:hover { background: rgba(255,255,255,0.25); text-decoration: none; }
+    .nav.scrolled .nav-github:hover { background: var(--gray-700); }
+    @media (max-width: 720px) {
+      .nav-links { display: none; }
+      .nav-inner .nav-github { display: inline-flex; }
+    }
+
+    /* ============== HERO ============== */
+    .hero {
+      position: relative;
+      min-height: 100vh;
+      display: flex; align-items: center; justify-content: center;
+      background: linear-gradient(135deg, #14B8A6 0%, #0D9488 35%, #0F766E 65%, #134E4A 100%);
+      overflow: hidden;
+      padding: 120px 24px 80px;
+    }
+    .hero::before {
+      content: '';
+      position: absolute; inset: 0;
+      background:
+        radial-gradient(ellipse 80% 60% at 18% 50%, rgba(94,234,212,0.40) 0%, transparent 65%),
+        radial-gradient(ellipse 60% 80% at 82% 30%, rgba(251,191,36,0.18) 0%, transparent 60%),
+        radial-gradient(ellipse 50% 50% at 70% 90%, rgba(251,113,133,0.16) 0%, transparent 65%);
+      pointer-events: none;
+    }
+    .hero-orbs { position: absolute; inset: 0; pointer-events: none; }
+    .hero-orb {
+      position: absolute;
+      left: var(--x); top: var(--y);
+      width: var(--s); height: var(--s);
+      opacity: var(--o);
+      background: radial-gradient(circle at 35% 35%, var(--c), transparent 70%);
+      border-radius: 50%;
+      animation: orb-float var(--d) ease-in-out infinite;
+      animation-delay: var(--dl, 0s);
+      filter: blur(3px);
+    }
+    @keyframes orb-float {
+      0%, 100% { transform: translate3d(0,0,0) scale(1); }
+      33% { transform: translate3d(0, var(--drift, -22px), 0) scale(1.05); }
+      66% { transform: translate3d(0, calc(var(--drift, -22px) * -0.5), 0) scale(0.97); }
+    }
+
+    .hero-content {
+      position: relative; z-index: 2;
+      text-align: center; max-width: 820px;
+    }
+    .hero-content > * { opacity: 0; transform: translate3d(0,30px,0); animation: hero-in 0.8s var(--ease-out-expo) forwards; }
+    .hero-content > *:nth-child(1) { animation-delay: 0.10s; }
+    .hero-content > *:nth-child(2) { animation-delay: 0.22s; }
+    .hero-content > *:nth-child(3) { animation-delay: 0.34s; }
+    .hero-content > *:nth-child(4) { animation-delay: 0.46s; }
+    .hero-content > *:nth-child(5) { animation-delay: 0.58s; }
+    .hero-content > *:nth-child(6) { animation-delay: 0.70s; }
+    .hero-content > *:nth-child(7) { animation-delay: 0.82s; }
+    @keyframes hero-in { to { opacity: 1; transform: translate3d(0,0,0); } }
+
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 10px;
+      padding: 8px 18px;
+      background: rgba(255,255,255,0.12);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255,255,255,0.18);
+      border-radius: 100px;
+      font-family: var(--font-mono);
+      font-size: 13px;
+      color: white;
+      margin-bottom: 28px;
+    }
+    .hero-badge .dot {
+      width: 7px; height: 7px;
+      background: var(--teal-300);
+      border-radius: 50%;
+      animation: pulse-dot 2.4s ease-in-out infinite;
+    }
+    @keyframes pulse-dot { 0%, 100% { opacity: 1; } 50% { opacity: 0.45; } }
+
+    .hero-title {
+      font-family: var(--font-display);
+      font-weight: 800;
+      font-size: clamp(72px, 16vw, 200px);
+      line-height: 0.88;
+      color: white;
+      letter-spacing: -0.04em;
+      margin-bottom: 22px;
+      text-shadow: 0 4px 30px rgba(0,0,0,0.18);
+    }
+    .hero-subtitle {
+      font-size: clamp(20px, 3vw, 30px);
+      color: white;
+      font-weight: 500;
+      line-height: 1.4;
+      margin: 0 auto 14px;
+      max-width: 640px;
+      letter-spacing: -0.01em;
+    }
+    .hero-subtext {
+      font-size: 16px;
+      color: rgba(255,255,255,0.86);
+      margin: 0 auto 32px;
+      max-width: 560px;
+    }
+
+    .hero-pills {
+      display: flex; flex-wrap: wrap; gap: 10px;
+      justify-content: center;
+      margin-bottom: 36px;
+    }
+    .hero-pill {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 6px 14px;
+      background: rgba(255,255,255,0.10);
+      border: 1px solid rgba(255,255,255,0.18);
+      border-radius: 100px;
+      color: white;
+      font-size: 13px;
+      font-weight: 500;
+    }
+    .pill-dot { width: 6px; height: 6px; border-radius: 50%; }
+
+    .hero-install {
+      display: inline-flex; align-items: center; gap: 12px;
+      padding: 14px 18px;
+      background: rgba(6,25,20,0.65);
+      border: 1px solid rgba(255,255,255,0.18);
+      border-radius: 12px;
+      backdrop-filter: blur(8px);
+      max-width: 100%;
+      overflow: hidden;
+    }
+    .hero-install code {
+      font-family: var(--font-mono);
+      color: white;
+      font-size: 15px;
+      white-space: nowrap;
+      overflow-x: auto;
+    }
+    .hero-install .prompt { color: var(--teal-300); margin-right: 8px; user-select: none; }
+    .copy-btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 6px 12px;
+      background: rgba(255,255,255,0.16);
+      border: 1px solid rgba(255,255,255,0.22);
+      color: white;
+      border-radius: 7px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .copy-btn:hover { background: rgba(255,255,255,0.26); }
+    .copy-btn svg { width: 13px; height: 13px; }
+    .copy-btn.copied { background: rgba(74,222,128,0.25); border-color: rgba(74,222,128,0.45); }
+
+    .hero-repo {
+      margin-top: 22px;
+      font-family: var(--font-mono);
+      font-size: 13px;
+      color: rgba(255,255,255,0.65);
+    }
+    .hero-repo a { color: rgba(255,255,255,0.85); }
+    .hero-repo a:hover { color: white; }
+    .hero-req {
+      margin-top: 10px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: rgba(255,255,255,0.5);
+      letter-spacing: 0.02em;
+    }
+
+    /* ============== PRIVACY STRIP ============== */
+    .privacy-strip {
+      background: var(--gray-900);
+      color: white;
+      padding: 18px 0;
+      text-align: center;
+      font-size: 14px;
+    }
+    .privacy-strip .container { display: flex; align-items: center; justify-content: center; gap: 12px; flex-wrap: wrap; }
+    .privacy-strip .dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--green-500);
+      animation: pulse-dot 2.4s ease-in-out infinite;
+    }
+    .privacy-strip strong { color: white; font-weight: 600; }
+    .privacy-strip span { color: var(--gray-400); }
+
+    /* ============== SECTION COMMONS ============== */
+    section { padding: 96px 0; }
+    @media (max-width: 720px) { section { padding: 64px 0; } }
+
+    .section-header { text-align: center; margin-bottom: 56px; }
+    .section-header .eyebrow {
+      display: inline-block;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--teal-700);
+      margin-bottom: 14px;
+    }
+    .section-header h2 {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: clamp(32px, 5vw, 48px);
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+      color: var(--gray-900);
+      margin-bottom: 14px;
+    }
+    .section-header p {
+      font-size: 18px;
+      color: var(--gray-600);
+      max-width: 660px;
+      margin: 0 auto;
+    }
+
+    /* ============== TERMINAL DEMO ============== */
+    .demo { background: var(--cream); }
+    .term {
+      max-width: 880px; margin: 0 auto;
+      background: var(--term-bg);
+      border-radius: 12px;
+      box-shadow: var(--shadow-xl);
+      overflow: hidden;
+    }
+    .term-chrome {
+      display: flex; align-items: center; gap: 8px;
+      padding: 12px 16px;
+      background: var(--term-surface);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .term-dot { width: 12px; height: 12px; border-radius: 50%; }
+    .term-dot.r { background: #FF5F57; }
+    .term-dot.y { background: #FEBC2E; }
+    .term-dot.g { background: #28C840; }
+    .term-title { margin-left: 12px; font-family: var(--font-mono); font-size: 12px; color: var(--term-dim); }
+    .term-body {
+      padding: 22px 24px 26px;
+      font-family: var(--font-mono);
+      font-size: 14px;
+      line-height: 1.7;
+      color: var(--term-text);
+      min-height: 280px;
+    }
+    .term-body .prompt { color: var(--term-prompt); margin-right: 6px; }
+    .term-body .cmd { color: var(--term-text); font-weight: 600; }
+    .term-body .flag { color: var(--amber-400); }
+    .term-body .arg { color: #FCD34D; }
+    .term-body .out { color: var(--term-out); white-space: pre-wrap; display: block; }
+    .term-body .heading { color: var(--teal-300); font-weight: 600; }
+    .term-body .dim { color: var(--term-dim); }
+
+    /* ============== WHY (stats) ============== */
+    .why { background: white; }
+    .why-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 18px;
+      max-width: 1080px;
+      margin: 0 auto;
+    }
+    @media (max-width: 900px) { .why-grid { grid-template-columns: repeat(2, 1fr); } }
+    .why-card {
+      padding: 28px 24px;
+      border: 1px solid var(--gray-200);
+      border-radius: 14px;
+      background: var(--cream);
+      text-align: center;
+    }
+    .why-card .num {
+      font-family: var(--font-display);
+      font-weight: 800;
+      font-size: 56px;
+      line-height: 1;
+      color: var(--teal-700);
+      margin-bottom: 8px;
+      letter-spacing: -0.03em;
+    }
+    .why-card .num.symbol { color: var(--gray-900); }
+    .why-card .label {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--gray-500);
+      margin-bottom: 8px;
+    }
+    .why-card .body { font-size: 14px; color: var(--gray-700); }
+
+    /* ============== WHAT IT DOES ============== */
+    .what { background: var(--gray-900); color: white; }
+    .what .section-header h2 { color: white; }
+    .what .section-header p { color: var(--gray-400); }
+    .what-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+      max-width: 1080px; margin: 0 auto;
+    }
+    @media (max-width: 720px) { .what-grid { grid-template-columns: 1fr; } }
+    .what-card {
+      padding: 28px;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 14px;
+      background: rgba(255,255,255,0.03);
+    }
+    .what-card h3 {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 24px;
+      letter-spacing: -0.01em;
+      margin-bottom: 6px;
+      color: white;
+    }
+    .what-card .what-flag {
+      font-family: var(--font-mono);
+      font-size: 13px;
+      color: var(--amber-400);
+      margin-bottom: 14px;
+    }
+    .what-card p { color: var(--gray-300); font-size: 15px; margin-bottom: 16px; }
+    .what-card pre {
+      background: var(--term-bg);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 8px;
+      padding: 14px 16px;
+      font-size: 13px;
+      color: var(--gray-200);
+      line-height: 1.65;
+    }
+    .what-card pre .cmd { color: white; font-weight: 600; }
+    .what-card pre .out { color: var(--term-out); }
+    .what-card pre .flag { color: var(--amber-400); }
+    .what-card pre .dim { color: var(--term-dim); }
+
+    /* ============== HOW IT WORKS ============== */
+    .how { background: var(--cream); }
+    .how-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      max-width: 1080px; margin: 0 auto 56px;
+    }
+    @media (max-width: 900px) { .how-grid { grid-template-columns: 1fr; } }
+    .how-card { background: white; border: 1px solid var(--gray-200); border-radius: 14px; padding: 28px; }
+    .how-card .step {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 32px; height: 32px;
+      background: var(--teal-700); color: white;
+      font-family: var(--font-mono); font-weight: 600; font-size: 14px;
+      border-radius: 8px;
+      margin-bottom: 16px;
+    }
+    .how-card h3 {
+      font-family: var(--font-display);
+      font-weight: 700; font-size: 20px;
+      margin-bottom: 8px;
+      color: var(--gray-900);
+    }
+    .how-card p { color: var(--gray-700); font-size: 15px; }
+    .how-card code { background: var(--gray-100); padding: 1px 6px; border-radius: 4px; font-size: 13px; color: var(--teal-800); }
+
+    .how-arch {
+      max-width: 1080px; margin: 0 auto;
+      background: var(--gray-900); color: white;
+      border-radius: 14px;
+      padding: 32px;
+      box-shadow: var(--shadow-lg);
+    }
+    .how-arch h3 {
+      font-family: var(--font-display);
+      font-size: 20px;
+      margin-bottom: 18px;
+      color: white;
+    }
+    .arch-flow {
+      display: flex; flex-wrap: wrap; gap: 14px; align-items: center;
+      font-family: var(--font-mono); font-size: 13px;
+    }
+    .arch-box {
+      padding: 10px 14px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.14);
+      border-radius: 8px;
+      color: var(--gray-200);
+    }
+    .arch-box.input { border-color: var(--amber-400); color: var(--amber-400); }
+    .arch-box.guard { border-color: var(--coral-400); color: var(--coral-400); }
+    .arch-box.engine { border-color: var(--teal-300); color: var(--teal-300); }
+    .arch-box.output { border-color: var(--green-500); color: var(--green-500); }
+    .arch-arrow { color: var(--gray-500); }
+
+    /* ============== SHOWCASE ============== */
+    .showcase { background: white; }
+    .showcase-intro { max-width: 720px; margin: 0 auto 56px; text-align: center; }
+    .showcase-intro p { font-size: 17px; color: var(--gray-700); }
+    .cards { display: flex; flex-direction: column; gap: 28px; max-width: 980px; margin: 0 auto; }
+
+    .card {
+      background: white;
+      border: 1px solid var(--gray-200);
+      border-radius: 14px;
+      box-shadow: var(--shadow-md);
+      overflow: hidden;
+    }
+    .card-text {
+      background: var(--cream);
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--gray-200);
+      font-family: var(--font-mono);
+      font-size: 13.5px;
+      line-height: 1.7;
+      color: var(--gray-800);
+      white-space: pre-wrap;
+      word-break: break-word;
+      max-height: 260px;
+      overflow-y: auto;
+    }
+    .card-body { padding: 24px 24px 28px; }
+    @media (max-width: 600px) { .card-body { padding: 20px 18px 22px; } }
+    .card-meta {
+      display: flex; flex-wrap: wrap; gap: 8px 14px;
+      font-family: var(--font-mono);
+      font-size: 12px; color: var(--gray-500);
+      margin-bottom: 10px;
+      align-items: center;
+    }
+    .badge {
+      background: var(--teal-700); color: white;
+      border-radius: 4px; padding: 2px 8px;
+      font-size: 11px; font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: lowercase;
+      font-family: var(--font-mono);
+    }
+    .badge.treaty      { background: var(--teal-700); }
+    .badge.poetry      { background: #B45309; }
+    .badge.literature  { background: #7C2D12; }
+    .badge.format      { background: var(--indigo-500); }
+    .badge.batch       { background: var(--green-600); }
+    .badge.detect      { background: var(--coral-400); color: var(--gray-900); }
+
+    .card h3 {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 24px;
+      letter-spacing: -0.01em;
+      line-height: 1.25;
+      color: var(--gray-900);
+      margin-bottom: 6px;
+    }
+    .blurb { color: var(--gray-700); font-size: 15px; margin: 8px 0 18px; }
+
+    .cmd-line {
+      display: block;
+      background: var(--term-bg);
+      color: var(--term-text);
+      border-radius: 8px;
+      padding: 10px 14px;
+      margin-bottom: 18px;
+      font-family: var(--font-mono);
+      font-size: 13px;
+      overflow-x: auto;
+      white-space: nowrap;
+    }
+    .cmd-line .prompt { color: var(--term-dim); user-select: none; }
+    .cmd-line .flag { color: var(--amber-400); }
+    .cmd-line .arg { color: #FCD34D; }
+
+    .section-block { margin-top: 22px; }
+    .section-block:first-of-type { margin-top: 0; }
+    .section-head {
+      display: flex; align-items: center; gap: 10px;
+      margin-bottom: 10px;
+    }
+    .section-head .icon {
+      width: 26px; height: 26px;
+      display: inline-flex; align-items: center; justify-content: center;
+      border-radius: 6px;
+      font-family: var(--font-mono);
+      font-size: 13px; font-weight: 700;
+    }
+    .section-head .icon.translate { background: rgba(20,184,166,0.14); color: var(--teal-700); }
+    .section-head .icon.detect    { background: rgba(251,113,133,0.14); color: #BE123C; }
+    .section-head .icon.json      { background: var(--gray-100); color: var(--gray-700); }
+    .section-head .label {
+      font-family: var(--font-mono);
+      font-size: 12px; font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--gray-700);
+    }
+    .section-head .stats {
+      margin-left: auto;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--gray-500);
+    }
+
+    .pair-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0;
+      border: 1px solid var(--gray-200);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    @media (max-width: 600px) { .pair-grid { grid-template-columns: 1fr; } }
+    .pair-cell { padding: 14px 16px; }
+    .pair-cell.src { background: var(--gray-50); border-right: 1px solid var(--gray-200); }
+    .pair-cell.dst { background: white; }
+    @media (max-width: 600px) {
+      .pair-cell.src { border-right: 0; border-bottom: 1px solid var(--gray-200); }
+    }
+    .pair-cell .lang {
+      display: inline-block;
+      font-family: var(--font-mono); font-size: 11px;
+      font-weight: 600; letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--gray-500);
+      margin-bottom: 6px;
+    }
+    .pair-cell .text {
+      font-size: 14.5px; line-height: 1.55;
+      color: var(--gray-900);
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    .pair-cell.src .text { color: var(--gray-700); }
+    .pair-conf {
+      display: inline-flex; align-items: center; gap: 8px;
+      margin-top: 12px;
+      font-family: var(--font-mono); font-size: 12px;
+      color: var(--gray-500);
+    }
+    .pair-conf .bar {
+      width: 80px; height: 5px;
+      background: var(--gray-200); border-radius: 3px; overflow: hidden;
+    }
+    .pair-conf .fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--teal-400), var(--teal-700));
+    }
+
+    .detect-result {
+      background: var(--gray-50);
+      border: 1px solid var(--gray-200);
+      border-radius: 10px;
+      padding: 16px 20px;
+      display: flex; flex-direction: column; gap: 10px;
+    }
+    .detect-result .lang-line {
+      display: flex; align-items: baseline; gap: 12px;
+      font-family: var(--font-display); font-weight: 700;
+    }
+    .detect-result .lang-code {
+      font-size: 32px;
+      letter-spacing: -0.02em;
+      color: var(--teal-700);
+    }
+    .detect-result .lang-name {
+      font-size: 18px; font-weight: 500;
+      color: var(--gray-700);
+    }
+    .detect-result .conf-line {
+      display: flex; align-items: center; gap: 10px;
+      font-family: var(--font-mono); font-size: 12.5px;
+      color: var(--gray-600);
+    }
+    .detect-result .conf-bar {
+      flex: 1; max-width: 280px;
+      height: 6px; background: var(--gray-200); border-radius: 3px; overflow: hidden;
+    }
+    .detect-result .conf-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--teal-400), var(--teal-700));
+    }
+
+    .json-block {
+      background: var(--term-bg);
+      color: var(--term-text);
+      border-radius: 8px;
+      padding: 14px 16px;
+      font-family: var(--font-mono);
+      font-size: 11.5px;
+      line-height: 1.6;
+      max-height: 360px;
+      overflow: auto;
+      white-space: pre;
+    }
+
+    .source-link {
+      display: inline-block;
+      margin-top: 18px;
+      font-family: var(--font-mono);
+      font-size: 13px;
+      color: var(--gray-500);
+    }
+    .source-link::before { content: "↗ "; }
+
+    /* ============== INSTALL ============== */
+    .install {
+      background: linear-gradient(135deg, #0D9488 0%, #0F766E 50%, #134E4A 100%);
+      color: white;
+      position: relative;
+      overflow: hidden;
+    }
+    .install::before {
+      content: ''; position: absolute; inset: 0;
+      background:
+        radial-gradient(ellipse 60% 60% at 25% 20%, rgba(94,234,212,0.32) 0%, transparent 60%),
+        radial-gradient(ellipse 50% 60% at 75% 80%, rgba(251,191,36,0.16) 0%, transparent 60%);
+      pointer-events: none;
+    }
+    .install .container { position: relative; z-index: 2; }
+    .install .section-header h2 { color: white; }
+    .install .section-header p { color: rgba(255,255,255,0.8); }
+    .install-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+      max-width: 880px; margin: 0 auto;
+    }
+    @media (max-width: 720px) { .install-row { grid-template-columns: 1fr; } }
+    .install-card {
+      padding: 24px;
+      background: rgba(6,25,20,0.55);
+      border: 1px solid rgba(255,255,255,0.18);
+      border-radius: 14px;
+      backdrop-filter: blur(12px);
+    }
+    .install-card .label {
+      font-family: var(--font-mono); font-size: 12px;
+      letter-spacing: 0.08em; text-transform: uppercase;
+      color: rgba(255,255,255,0.7);
+      margin-bottom: 12px;
+    }
+    .install-card pre {
+      background: rgba(0,0,0,0.4);
+      border-radius: 8px;
+      padding: 12px 14px;
+      font-family: var(--font-mono); font-size: 13px;
+      color: white;
+      white-space: pre-wrap;
+      margin-bottom: 12px;
+    }
+    .install-card .copy-btn { padding: 6px 12px; font-size: 12px; }
+
+    /* ============== FAMILY ============== */
+    .family { background: var(--cream); }
+    .family-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 18px;
+      max-width: 1080px; margin: 0 auto;
+    }
+    @media (max-width: 900px) { .family-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 520px) { .family-grid { grid-template-columns: 1fr; } }
+    .family-card {
+      background: white;
+      border: 1px solid var(--gray-200);
+      border-radius: 14px;
+      padding: 24px;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .family-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); text-decoration: none; }
+    .family-card h3 {
+      font-family: var(--font-display); font-weight: 800;
+      font-size: 22px;
+      color: var(--teal-800);
+      margin-bottom: 4px;
+    }
+    .family-card.current h3 { color: var(--gray-900); }
+    .family-card .framework {
+      font-family: var(--font-mono); font-size: 11px;
+      color: var(--gray-500);
+      letter-spacing: 0.04em; text-transform: uppercase;
+      margin-bottom: 14px;
+    }
+    .family-card p { color: var(--gray-700); font-size: 14px; }
+    .family-card.current { border-color: var(--teal-500); background: linear-gradient(180deg, rgba(20,184,166,0.06), white); }
+    .family-card.current .here {
+      display: inline-block;
+      background: var(--teal-700); color: white;
+      font-family: var(--font-mono); font-size: 10px;
+      padding: 1px 6px; border-radius: 3px;
+      letter-spacing: 0.05em;
+      margin-top: 8px;
+    }
+
+    /* ============== FOOTER ============== */
+    .footer {
+      background: var(--gray-900);
+      color: var(--gray-400);
+      padding: 56px 0 36px;
+      font-size: 14px;
+    }
+    .footer-inner { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 32px; max-width: 1080px; margin: 0 auto; }
+    @media (max-width: 720px) { .footer-inner { grid-template-columns: 1fr 1fr; gap: 28px; } }
+    .footer h4 {
+      font-family: var(--font-display);
+      font-size: 14px; font-weight: 700;
+      color: white;
+      letter-spacing: 0.04em; text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+    .footer ul { list-style: none; }
+    .footer li { margin-bottom: 8px; }
+    .footer a { color: var(--gray-400); }
+    .footer a:hover { color: white; text-decoration: none; }
+    .footer .brand-name { font-family: var(--font-display); font-weight: 800; color: white; font-size: 28px; letter-spacing: -0.02em; }
+    .footer .brand-tag { color: var(--gray-400); margin-top: 6px; max-width: 320px; }
+    .footer-bottom {
+      max-width: 1080px; margin: 32px auto 0;
+      padding-top: 22px;
+      border-top: 1px solid rgba(255,255,255,0.08);
+      display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px;
+      font-family: var(--font-mono); font-size: 12px;
+      color: var(--gray-500);
+    }
+  </style>
+</head>
+<body>
+
+<!-- ============================== NAV ============================== -->
+<nav class="nav" id="nav">
+  <div class="container nav-inner">
+    <a href="#" class="nav-logo">translate</a>
+    <div class="nav-links">
+      <a href="#what">What it does</a>
+      <a href="#how">How it works</a>
+      <a href="#showcase">Showcase</a>
+      <a href="#install">Install</a>
+    </div>
+    <a href="https://github.com/Arthur-Ficial/translate" class="nav-github" target="_blank" rel="noopener">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.4 3-.405 1.02.005 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
+      GitHub
+    </a>
+  </div>
+</nav>
+
+<!-- ============================== HERO ============================== -->
+<section class="hero">
+  <div class="hero-orbs" aria-hidden="true">
+    <div class="hero-orb" style="--x:6%;--y:14%;--s:120px;--o:0.20;--d:10s;--c:#5EEAD4;--drift:-25px"></div>
+    <div class="hero-orb" style="--x:82%;--y:18%;--s:80px;--o:0.14;--d:12s;--dl:1s;--c:#FBBF24;--drift:-18px"></div>
+    <div class="hero-orb" style="--x:18%;--y:68%;--s:60px;--o:0.22;--d:8s;--dl:2.5s;--c:#2DD4BF;--drift:-22px"></div>
+    <div class="hero-orb" style="--x:72%;--y:62%;--s:100px;--o:0.16;--d:11s;--dl:0.5s;--c:#14B8A6;--drift:-20px"></div>
+    <div class="hero-orb" style="--x:42%;--y:82%;--s:70px;--o:0.12;--d:9s;--dl:3s;--c:#FB7185;--drift:-15px"></div>
+    <div class="hero-orb" style="--x:92%;--y:48%;--s:50px;--o:0.24;--d:13s;--dl:1.5s;--c:#5EEAD4;--drift:-28px"></div>
+    <div class="hero-orb" style="--x:34%;--y:32%;--s:42px;--o:0.18;--d:14s;--dl:2s;--c:#2DD4BF;--drift:-12px"></div>
+  </div>
+
+  <div class="hero-content">
+    <div class="hero-badge">
+      <span class="dot"></span>
+      v__VERSION__ &middot; 100% on-device &middot; MIT
+    </div>
+    <h1 class="hero-title">translate</h1>
+    <p class="hero-subtitle">Apple Translation from your terminal.</p>
+    <p class="hero-subtext">A UNIX filter and a drop-in HTTP server for DeepL, LibreTranslate, and Google Translate v2 - all wrapped around Apple's on-device Translation framework. No cloud, no LLM, no API keys, no rate limits.</p>
+    <div class="hero-pills">
+      <span class="hero-pill"><span class="pill-dot" style="background:#4ADE80"></span> 100% on-device</span>
+      <span class="hero-pill"><span class="pill-dot" style="background:#FBBF24"></span> No API keys</span>
+      <span class="hero-pill"><span class="pill-dot" style="background:#5EEAD4"></span> 3 drop-in APIs</span>
+      <span class="hero-pill"><span class="pill-dot" style="background:#FB7185"></span> NetworkGuard enforced</span>
+    </div>
+    <div class="hero-install">
+      <code><span class="prompt">$</span>brew install Arthur-Ficial/tap/translate</code>
+      <button class="copy-btn" data-copy="brew install Arthur-Ficial/tap/translate" onclick="copyCmd(this)">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+        Copy
+      </button>
+    </div>
+    <p class="hero-repo">Source: <a href="https://github.com/Arthur-Ficial/translate" target="_blank" rel="noopener">github.com/Arthur-Ficial/translate</a></p>
+    <p class="hero-req">Requires: macOS 26 Tahoe &middot; Apple Silicon &middot; Translation models installed via System Settings</p>
+  </div>
+</section>
+
+<!-- ============================== PRIVACY STRIP ============================== -->
+<div class="privacy-strip">
+  <div class="container">
+    <span class="dot"></span>
+    <span><strong>Everything runs on your device.</strong> No network calls. No data leaves your Mac. Enforced at runtime by a URLProtocol guard that hard-exits any HTTP attempt.</span>
+  </div>
+</div>
+
+<!-- ============================== TERMINAL DEMO ============================== -->
+<section class="demo" id="demo">
+  <div class="container">
+    <div class="section-header">
+      <span class="eyebrow">Watch it work</span>
+      <h2>Text in. Translation out.</h2>
+      <p>The same binary is a UNIX filter, a batch translator, and a drop-in HTTP server. Pick the surface you need - the engine is the same.</p>
+    </div>
+    <div class="term">
+      <div class="term-chrome">
+        <span class="term-dot r"></span><span class="term-dot y"></span><span class="term-dot g"></span>
+        <span class="term-title">Terminal &mdash; translate</span>
+      </div>
+      <div class="term-body">
+<span class="prompt">$</span> echo <span class="arg">"Hallo Welt."</span> | <span class="cmd">translate</span> <span class="flag">--to</span> en
+<span class="out">Hello world.</span>
+
+<span class="prompt">$</span> <span class="cmd">translate</span> <span class="flag">--detect-only</span> <span class="arg">"Ceci est une phrase française."</span>
+<span class="out">fr	0.999</span>
+
+<span class="prompt">$</span> <span class="cmd">translate</span> <span class="flag">--to</span> en <span class="flag">--format</span> ndjson &lt; sentences.txt
+<span class="out">{"from":"de","to":"en","src":"Hallo Welt.","dst":"Hello world.","conf":1}
+{"from":"de","to":"en","src":"Guten Morgen.","dst":"Good morning.","conf":1}</span>
+
+<span class="prompt">$</span> <span class="cmd">translate</span> <span class="flag">--serve</span> <span class="flag">--port</span> 8989 <span class="dim"># DeepL/LibreTranslate/Google v2</span>
+
+<span class="prompt">$</span> curl <span class="flag">-X</span> POST localhost:8989/v2/translate <span class="dim"># DeepL drop-in</span>
+       <span class="flag">--data-urlencode</span> <span class="arg">"text=Hallo"</span>
+       <span class="flag">--data-urlencode</span> <span class="arg">"target_lang=EN"</span>
+<span class="out">{"translations":[{"detected_source_language":"DE","text":"Hello","billed_characters":5}]}</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================== WHY ============================== -->
+<section class="why">
+  <div class="container">
+    <div class="section-header">
+      <span class="eyebrow">Why translate</span>
+      <h2>Zero cost. Zero downloads. Zero limits.</h2>
+      <p>Apple's Translation framework ships with macOS Tahoe. translate is a thin Swift wrapper that makes it accessible from the shell and from existing translation client SDKs.</p>
+    </div>
+    <div class="why-grid">
+      <div class="why-card">
+        <div class="num symbol">$0</div>
+        <div class="label">Per request</div>
+        <div class="body">No API keys, no per-character billing, no usage tier. Translate a million strings.</div>
+      </div>
+      <div class="why-card">
+        <div class="num">100%</div>
+        <div class="label">On-device</div>
+        <div class="body">No network calls. Hard-enforced at runtime by NetworkGuard - any HTTP attempt aborts.</div>
+      </div>
+      <div class="why-card">
+        <div class="num">3</div>
+        <div class="label">APIs spoken</div>
+        <div class="body">Drop-in for DeepL v2, LibreTranslate, and Google Translate v2. Existing clients work unchanged.</div>
+      </div>
+      <div class="why-card">
+        <div class="num">__TEST_COUNT__</div>
+        <div class="label">Tests passing</div>
+        <div class="body">Codecs, masker, streaming, errors, drop-in compat. Real loopback HTTP, no mocks.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================== WHAT IT DOES ============================== -->
+<section class="what" id="what">
+  <div class="container">
+    <div class="section-header">
+      <span class="eyebrow">Two surfaces, one engine</span>
+      <h2>What translate does.</h2>
+      <p>UNIX filter for the shell, HTTP server for everything else. Same Apple Translation framework underneath.</p>
+    </div>
+    <div class="what-grid">
+      <div class="what-card">
+        <h3>Translate</h3>
+        <div class="what-flag">translate --to en</div>
+        <p>The default mode. Reads stdin (or positional args, or <code>--file</code>), detects the source language, runs Apple's on-device Translation framework, writes the result to stdout.</p>
+        <pre><span class="cmd">$</span> echo <span class="flag">"Hallo Welt"</span> | translate <span class="flag">--to</span> en
+<span class="out">Hello world.</span></pre>
+      </div>
+
+      <div class="what-card">
+        <h3>Detect</h3>
+        <div class="what-flag">translate --detect-only</div>
+        <p>Identify the language without translating. Returns BCP-47 code and confidence (0..1) via Apple's NaturalLanguage framework. Use it to route text to the right downstream pipeline.</p>
+        <pre><span class="cmd">$</span> translate <span class="flag">--detect-only</span> <span class="flag">"Det är svenska."</span>
+<span class="out">sv	0.999</span></pre>
+      </div>
+
+      <div class="what-card">
+        <h3>Stream</h3>
+        <div class="what-flag">translate --batch | --format ndjson</div>
+        <p>Pipe arbitrary-size text through. Paragraph-mode buffers full paragraphs; <code>--batch</code> treats each line as an independent unit. URLs, emails, and code spans pass through untranslated.</p>
+        <pre><span class="cmd">$</span> translate <span class="flag">--to</span> en <span class="flag">--format</span> ndjson &lt; in.txt
+<span class="out">{"from":"de","to":"en","src":"...","dst":"..."}</span></pre>
+      </div>
+
+      <div class="what-card">
+        <h3>Serve</h3>
+        <div class="what-flag">translate --serve</div>
+        <p>HTTP server byte-compatible with three production translation APIs. The official <code>deepl</code> Python SDK, <code>libretranslatepy</code>, and any Google v2 REST client work unchanged - just override the base URL.</p>
+        <pre><span class="cmd">$</span> translate <span class="flag">--serve</span> <span class="flag">--port</span> 8989
+<span class="out">translate: serving on http://127.0.0.1:8989</span></pre>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================== HOW IT WORKS ============================== -->
+<section class="how" id="how">
+  <div class="container">
+    <div class="section-header">
+      <span class="eyebrow">How it works</span>
+      <h2>Apple's translation engine. UNIX semantics. HTTP wrapper.</h2>
+      <p>translate is a thin Swift CLI over the Translation framework. The model lives in macOS Tahoe - translate just gives you a way to call it from the shell, the pipe, or another process.</p>
+    </div>
+
+    <div class="how-grid">
+      <div class="how-card">
+        <span class="step">1</span>
+        <h3>Text in (any source)</h3>
+        <p>Positional args, stdin pipe (<code>echo x | translate --to en</code>), <code>--file</code>, or HTTP body when running <code>--serve</code>. UTF-8 only.</p>
+      </div>
+      <div class="how-card">
+        <span class="step">2</span>
+        <h3>Translation, on-device</h3>
+        <p>translate calls <code>TranslationSession</code> on your Mac's Apple Silicon. The model is shipped with macOS - no download per request, no API key, no quota.</p>
+      </div>
+      <div class="how-card">
+        <span class="step">3</span>
+        <h3>Structured output</h3>
+        <p>Plain text, JSON, or NDJSON. Pipe to <code>jq</code>, feed into <code>apfel</code> for summaries, or speak DeepL / LibreTranslate / Google v2 over HTTP.</p>
+      </div>
+    </div>
+
+    <div class="how-arch">
+      <h3>The data flow</h3>
+      <div class="arch-flow">
+        <div class="arch-box input">stdin / args / --file / HTTP body</div>
+        <div class="arch-arrow">→</div>
+        <div class="arch-box guard">NetworkGuard (URLProtocol)</div>
+        <div class="arch-arrow">→</div>
+        <div class="arch-box engine">Apple Translation framework</div>
+        <div class="arch-arrow">→</div>
+        <div class="arch-box output">JSON / NDJSON / Plain → stdout / HTTP</div>
+      </div>
+      <p style="margin-top:18px;color:var(--gray-400);font-size:14px;line-height:1.65">
+        <strong style="color:white">NetworkGuard</strong> registers a URLProtocol that intercepts every <code style="background:rgba(255,255,255,0.08);padding:1px 6px;border-radius:4px;color:var(--coral-400)">http</code> / <code style="background:rgba(255,255,255,0.08);padding:1px 6px;border-radius:4px;color:var(--coral-400)">https</code> / <code style="background:rgba(255,255,255,0.08);padding:1px 6px;border-radius:4px;color:var(--coral-400)">ws</code> / <code style="background:rgba(255,255,255,0.08);padding:1px 6px;border-radius:4px;color:var(--coral-400)">wss</code> request inside the translate process and exits with code 2 plus a stderr message. The HTTP server <em>itself</em> is unaffected because Hummingbird opens kernel sockets that URLProtocol does not see - the guard only catches outbound URLSession calls, which is exactly the surface a future bug or dependency could leak through.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================== SHOWCASE ============================== -->
+<section class="showcase" id="showcase">
+  <div class="container">
+    <div class="section-header">
+      <span class="eyebrow">Real text, real translate</span>
+      <h2>Public-domain corpus, real outcomes.</h2>
+    </div>
+    <div class="showcase-intro">
+      <p>Every example below is processed by running the real <code>translate</code> binary (v__VERSION__) on a public-domain text from the UN OHCHR archives, Wikisource, and a handful of CC0 fixtures composed for this site - at build time, on a Mac, with no network. Each card shows the source, the on-device translation, the detected source language with confidence, plus the full JSON output. Nothing is mocked or post-processed.</p>
+    </div>
+    <div class="cards">

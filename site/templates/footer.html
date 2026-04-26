@@ -1,0 +1,149 @@
+    </div>
+  </div>
+</section>
+
+<!-- ============================== INSTALL ============================== -->
+<section class="install" id="install">
+  <div class="container">
+    <div class="section-header">
+      <span class="eyebrow" style="color:rgba(255,255,255,0.85)">Install</span>
+      <h2>Get translate.</h2>
+      <p>Two install paths. Pick one. Both run the same binary.</p>
+    </div>
+    <div class="install-row">
+      <div class="install-card">
+        <div class="label">Homebrew (recommended)</div>
+        <pre>brew tap Arthur-Ficial/tap
+brew install Arthur-Ficial/tap/translate</pre>
+        <button class="copy-btn" data-copy="brew tap Arthur-Ficial/tap; brew install Arthur-Ficial/tap/translate" onclick="copyCmd(this)">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+          Copy
+        </button>
+      </div>
+      <div class="install-card">
+        <div class="label">Build from source</div>
+        <pre>git clone https://github.com/Arthur-Ficial/translate
+cd translate &amp;&amp; make install</pre>
+        <button class="copy-btn" data-copy="git clone https://github.com/Arthur-Ficial/translate; cd translate && make install" onclick="copyCmd(this)">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+          Copy
+        </button>
+      </div>
+    </div>
+    <p style="text-align:center;margin-top:32px;font-family:var(--font-mono);font-size:13px;color:rgba(255,255,255,0.65)">No Xcode required. Builds with Command Line Tools. Requires macOS 26 Tahoe with Apple Silicon. Translation models install through System Settings &middot; General &middot; Language &amp; Region &middot; Translation Languages.</p>
+  </div>
+</section>
+
+<!-- ============================== FAMILY (ECOSYSTEM) ============================== -->
+<section class="family">
+  <div class="container">
+    <div class="section-header">
+      <span class="eyebrow">The apfel family</span>
+      <h2>Apple's on-device intelligence, exposed as UNIX tools.</h2>
+      <p>Each tool wraps one Apple framework. Together they are the apfel ecosystem - what apfel does for text generation, the others do for vision, speech, embeddings, and translation.</p>
+    </div>
+    <div class="family-grid">
+      <a class="family-card" href="https://apfel.franzai.com" target="_blank" rel="noopener">
+        <h3>apfel</h3>
+        <div class="framework">FoundationModels &middot; LLM</div>
+        <p>The free AI already on your Mac. CLI access to the on-device 3B parameter model.</p>
+      </a>
+      <a class="family-card" href="https://auge.franzai.com" target="_blank" rel="noopener">
+        <h3>auge</h3>
+        <div class="framework">Vision &middot; OCR / Classify / Barcodes / Faces</div>
+        <p>Apple Vision from your terminal. Point at any image, get everything back.</p>
+      </a>
+      <a class="family-card current" href="#">
+        <h3>translate</h3>
+        <div class="framework">Translation &middot; On-device translator</div>
+        <p>Apple Translation from your terminal. UNIX filter plus drop-in HTTP server for three production APIs.</p>
+        <span class="here">YOU ARE HERE</span>
+      </a>
+      <a class="family-card" href="https://github.com/Arthur-Ficial/ohr" target="_blank" rel="noopener">
+        <h3>ohr</h3>
+        <div class="framework">SpeechAnalyzer &middot; Speech-to-text</div>
+        <p>Speech transcription from the terminal. On-device, no cloud.</p>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ============================== FOOTER ============================== -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-inner">
+      <div>
+        <div class="brand-name">translate</div>
+        <p class="brand-tag">Apple Translation from your terminal. Part of the apfel ecosystem - small, focused CLIs for Apple's on-device intelligence.</p>
+      </div>
+      <div>
+        <h4>translate</h4>
+        <ul>
+          <li><a href="https://github.com/Arthur-Ficial/translate" target="_blank" rel="noopener">GitHub repo</a></li>
+          <li><a href="https://github.com/Arthur-Ficial/translate/releases" target="_blank" rel="noopener">Releases</a></li>
+          <li><a href="https://github.com/Arthur-Ficial/translate/issues" target="_blank" rel="noopener">Issues</a></li>
+          <li><a href="#install">Install</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Family</h4>
+        <ul>
+          <li><a href="https://apfel.franzai.com" target="_blank" rel="noopener">apfel</a></li>
+          <li><a href="https://auge.franzai.com" target="_blank" rel="noopener">auge</a></li>
+          <li><a href="https://github.com/Arthur-Ficial/ohr" target="_blank" rel="noopener">ohr</a></li>
+          <li><a href="https://github.com/Arthur-Ficial/apfel-ecosystem" target="_blank" rel="noopener">apfel-ecosystem</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>This site</h4>
+        <ul>
+          <li><a href="https://github.com/Arthur-Ficial/translate-web" target="_blank" rel="noopener">Source</a></li>
+          <li><a href="https://www.ohchr.org/en/human-rights/universal-declaration" target="_blank" rel="noopener">UN UDHR</a></li>
+          <li><a href="https://wikisource.org" target="_blank" rel="noopener">Wikisource</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>translate v__VERSION__ &middot; built __GENERATED__</span>
+      <span>Site MIT &middot; corpus content CC0 / Public Domain</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // Sticky nav state
+  (function() {
+    const nav = document.getElementById('nav');
+    const onScroll = () => nav.classList.toggle('scrolled', window.scrollY > 24);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+  })();
+
+  // Copy buttons
+  function copyCmd(btn) {
+    const text = btn.getAttribute('data-copy') || (btn.previousElementSibling && btn.previousElementSibling.innerText.trim()) || '';
+    if (!text) return;
+    const orig = btn.innerHTML;
+    navigator.clipboard.writeText(text).then(
+      () => {
+        btn.classList.add('copied');
+        btn.innerHTML = 'Copied';
+        setTimeout(() => { btn.innerHTML = orig; btn.classList.remove('copied'); }, 1400);
+      },
+      () => {
+        btn.innerHTML = 'Copy failed';
+        setTimeout(() => { btn.innerHTML = orig; }, 1400);
+      }
+    );
+  }
+  document.addEventListener('click', function(e) {
+    const btn = e.target.closest('.copy-btn');
+    if (btn && !btn.hasAttribute('data-copy') && !btn.dataset.handled) {
+      btn.dataset.handled = '1';
+      copyCmd(btn);
+    }
+  });
+</script>
+
+</body>
+</html>
