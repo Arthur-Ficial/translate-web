@@ -344,7 +344,8 @@ for cmd_file in sorted(snip_dir.glob("server-*.cmd")):
     page = page.replace(f"__SNIP_WIRE_{sid}__", html_escape(wire))
 
 # 3. Compose the "Watch it work" terminal body from a curated CLI subset.
-term_ids = ["echo-de-en", "args-en-de", "detect-fr", "ndjson-stream", "args-batch", "version"]
+# Lead with the simplest positional-args form, then richer flows.
+term_ids = ["hello-world-de-en", "args-en-de", "args-multi", "detect-fr", "ndjson-stream", "version"]
 term_lines = []
 for sid in term_ids:
     cmd = read(f"cli-{sid}.cmd").rstrip().removeprefix("$ ")

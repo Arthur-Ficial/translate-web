@@ -1,6 +1,11 @@
 {
   "cli": [
     {
+      "id": "hello-world-de-en",
+      "label": "Translate one string -- the simplest form",
+      "shell": "translate \"Hallo Welt\" --to en --no-install --quiet"
+    },
+    {
       "id": "echo-de-en",
       "label": "Pipe German to English",
       "shell": "echo \"Hallo Welt.\" | translate --to en --from de --no-install --quiet"
@@ -18,7 +23,7 @@
     {
       "id": "what-translate",
       "label": "Default mode -- translate",
-      "shell": "echo \"Hallo Welt\" | translate --to en --from de --no-install --quiet"
+      "shell": "translate \"Hallo Welt, wie geht es dir?\" --to en --no-install --quiet"
     },
     {
       "id": "what-detect",
