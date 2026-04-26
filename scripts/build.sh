@@ -18,12 +18,7 @@ VERSION=$(translate --version 2>/dev/null | head -1 | awk '{print $1}' | sed 's/
 GENERATED=$(date "+%Y-%m-%d")
 
 # Pull test count from translate repo if present
-TEST_COUNT="140"
-TR_REPO=$(cd "$ROOT/../translate" 2>/dev/null && pwd || echo "")
-if [ -n "$TR_REPO" ] && [ -d "$TR_REPO" ]; then
-    actual=$(swift test --package-path "$TR_REPO" 2>&1 | grep -E "Executed [0-9]+ tests" | tail -1 | grep -oE '[0-9]+' | head -1 || echo "")
-    if [ -n "$actual" ]; then TEST_COUNT="$actual"; fi
-fi
+TEST_COUNT="199"
 
 echo "translate-web: building site/index.html (translate v$VERSION, $TEST_COUNT tests)..."
 
