@@ -99,6 +99,21 @@ lang_name() {
     vi) echo "Vietnamese" ;;
     hi) echo "Hindi" ;;
     th) echo "Thai" ;;
+    el) echo "Greek" ;;
+    fi) echo "Finnish" ;;
+    hu) echo "Hungarian" ;;
+    cs) echo "Czech" ;;
+    da) echo "Danish" ;;
+    no|nb|nn) echo "Norwegian" ;;
+    he) echo "Hebrew" ;;
+    ro) echo "Romanian" ;;
+    bg) echo "Bulgarian" ;;
+    sk) echo "Slovak" ;;
+    sl) echo "Slovenian" ;;
+    et) echo "Estonian" ;;
+    lt) echo "Lithuanian" ;;
+    lv) echo "Latvian" ;;
+    id) echo "Indonesian" ;;
     *) echo "$1" ;;
   esac
 }

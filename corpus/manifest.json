@@ -2,7 +2,7 @@
   "items": [
     {
       "id": "udhr-art1-de",
-      "title": "Universal Declaration of Human Rights — Article 1 (German)",
+      "title": "Universal Declaration of Human Rights - Article 1 (German)",
       "year": 1948,
       "category": "treaty",
       "license": "Public Domain (UN OHCHR)",
@@ -16,7 +16,7 @@
     },
     {
       "id": "udhr-art1-fr",
-      "title": "Universal Declaration of Human Rights — Article 1 (French)",
+      "title": "Universal Declaration of Human Rights - Article 1 (French)",
       "year": 1948,
       "category": "treaty",
       "license": "Public Domain (UN OHCHR)",
@@ -30,7 +30,7 @@
     },
     {
       "id": "udhr-art1-ja",
-      "title": "Universal Declaration of Human Rights — Article 1 (Japanese)",
+      "title": "Universal Declaration of Human Rights - Article 1 (Japanese)",
       "year": 1948,
       "category": "treaty",
       "license": "Public Domain (UN OHCHR)",
@@ -44,7 +44,7 @@
     },
     {
       "id": "udhr-art1-ar",
-      "title": "Universal Declaration of Human Rights — Article 1 (Arabic)",
+      "title": "Universal Declaration of Human Rights - Article 1 (Arabic)",
       "year": 1948,
       "category": "treaty",
       "license": "Public Domain (UN OHCHR)",
@@ -58,13 +58,13 @@
     },
     {
       "id": "goethe-heidenroslein",
-      "title": "Goethe — Heidenröslein (1799)",
+      "title": "Goethe - Heidenröslein (1799)",
       "year": 1799,
       "category": "poetry",
       "license": "Public Domain",
       "source": "https://de.wikisource.org/wiki/Heidenr%C3%B6slein",
       "filename": "goethe-heidenroslein.txt",
-      "blurb": "Goethe's most famous Volkslied. Short lines, dense rhyme. translate keeps line breaks because preserve-newlines is on by default — paragraph cadence survives.",
+      "blurb": "Goethe's most famous Volkslied. Short lines, dense rhyme. translate keeps line breaks because preserve-newlines is on by default - paragraph cadence survives.",
       "from_lang": "de",
       "to_lang": "en",
       "text": "Sah ein Knab' ein Röslein stehn,\nRöslein auf der Heiden,\nWar so jung und morgenschön,\nLief er schnell, es nah zu sehn,\nSah's mit vielen Freuden.\nRöslein, Röslein, Röslein rot,\nRöslein auf der Heiden.",
@@ -72,7 +72,7 @@
     },
     {
       "id": "cervantes-quijote",
-      "title": "Cervantes — Don Quijote (opening, 1605)",
+      "title": "Cervantes - Don Quijote (opening, 1605)",
       "year": 1605,
       "category": "literature",
       "license": "Public Domain",
@@ -86,7 +86,7 @@
     },
     {
       "id": "tolstoy-anna",
-      "title": "Tolstoy — Anna Karenina (opening, 1877)",
+      "title": "Tolstoy - Anna Karenina (opening, 1877)",
       "year": 1877,
       "category": "literature",
       "license": "Public Domain",
@@ -114,7 +114,7 @@
     },
     {
       "id": "batch-greetings",
-      "title": "Polyglot greetings — batch mode",
+      "title": "Polyglot greetings - batch mode",
       "year": 2026,
       "category": "batch",
       "license": "CC0 (composed for this site)",
@@ -128,7 +128,7 @@
     },
     {
       "id": "detect-swedish",
-      "title": "Detect — Swedish",
+      "title": "Detect - Swedish",
       "year": 2026,
       "category": "detect",
       "license": "CC0 (composed for this site)",
@@ -142,7 +142,7 @@
     },
     {
       "id": "detect-italian",
-      "title": "Detect — Italian",
+      "title": "Detect - Italian",
       "year": 2026,
       "category": "detect",
       "license": "CC0 (composed for this site)",
@@ -156,7 +156,7 @@
     },
     {
       "id": "detect-portuguese",
-      "title": "Detect — Portuguese",
+      "title": "Detect - Portuguese",
       "year": 2026,
       "category": "detect",
       "license": "CC0 (composed for this site)",
@@ -170,7 +170,7 @@
     },
     {
       "id": "detect-dutch",
-      "title": "Detect — Dutch",
+      "title": "Detect - Dutch",
       "year": 2026,
       "category": "detect",
       "license": "CC0 (composed for this site)",
@@ -184,7 +184,7 @@
     },
     {
       "id": "detect-norwegian",
-      "title": "Detect — Norwegian Bokmål",
+      "title": "Detect - Norwegian Bokmål",
       "year": 2026,
       "category": "detect",
       "license": "CC0 (composed for this site)",
@@ -198,7 +198,7 @@
     },
     {
       "id": "detect-polish",
-      "title": "Detect — Polish",
+      "title": "Detect - Polish",
       "year": 2026,
       "category": "detect",
       "license": "CC0 (composed for this site)",
@@ -212,7 +212,7 @@
     },
     {
       "id": "detect-ukrainian",
-      "title": "Detect — Ukrainian",
+      "title": "Detect - Ukrainian",
       "year": 2026,
       "category": "detect",
       "license": "CC0 (composed for this site)",
@@ -226,7 +226,7 @@
     },
     {
       "id": "detect-korean",
-      "title": "Detect — Korean",
+      "title": "Detect - Korean",
       "year": 2026,
       "category": "detect",
       "license": "CC0 (composed for this site)",
@@ -240,7 +240,7 @@
     },
     {
       "id": "detect-vietnamese",
-      "title": "Detect — Vietnamese",
+      "title": "Detect - Vietnamese",
       "year": 2026,
       "category": "detect",
       "license": "CC0 (composed for this site)",
@@ -254,7 +254,7 @@
     },
     {
       "id": "detect-thai",
-      "title": "Detect — Thai",
+      "title": "Detect - Thai",
       "year": 2026,
       "category": "detect",
       "license": "CC0 (composed for this site)",
@@ -268,7 +268,7 @@
     },
     {
       "id": "detect-hindi",
-      "title": "Detect — Hindi (Devanagari)",
+      "title": "Detect - Hindi (Devanagari)",
       "year": 2026,
       "category": "detect",
       "license": "CC0 (composed for this site)",
@@ -282,13 +282,13 @@
     },
     {
       "id": "detect-greek",
-      "title": "Detect — Greek",
+      "title": "Detect - Greek",
       "year": 2026,
       "category": "detect",
       "license": "CC0 (composed for this site)",
       "source": "https://github.com/Arthur-Ficial/translate-web",
       "filename": "detect-greek.txt",
-      "blurb": "Greek script. Visually distinct, single-language script — detection is typically 99%+ confidence.",
+      "blurb": "Greek script. Visually distinct, single-language script - detection is typically 99%+ confidence.",
       "from_lang": "auto",
       "to_lang": null,
       "text": "Αυτή είναι μια ελληνική πρόταση με αρκετές λέξεις για αξιόπιστη αναγνώριση γλώσσας.",
@@ -296,7 +296,7 @@
     },
     {
       "id": "detect-finnish",
-      "title": "Detect — Finnish",
+      "title": "Detect - Finnish",
       "year": 2026,
       "category": "detect",
       "license": "CC0 (composed for this site)",
@@ -310,7 +310,7 @@
     },
     {
       "id": "detect-hungarian",
-      "title": "Detect — Hungarian",
+      "title": "Detect - Hungarian",
       "year": 2026,
       "category": "detect",
       "license": "CC0 (composed for this site)",
@@ -324,7 +324,7 @@
     },
     {
       "id": "detect-czech",
-      "title": "Detect — Czech",
+      "title": "Detect - Czech",
       "year": 2026,
       "category": "detect",
       "license": "CC0 (composed for this site)",
