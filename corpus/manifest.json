@@ -335,6 +335,48 @@
       "to_lang": null,
       "text": "Toto je česká věta s dostatečným počtem slov pro spolehlivou identifikaci jazyka.",
       "translate_args": ["--detect-only", "--quiet"]
+    },
+    {
+      "id": "detect-mixed-de-en",
+      "title": "Mixed - German with English fragments",
+      "year": 2026,
+      "category": "detect",
+      "license": "CC0 (composed for this site)",
+      "source": "https://github.com/Arthur-Ficial/translate-web",
+      "filename": "detect-mixed-de-en.txt",
+      "blurb": "A German paragraph that quotes English. NaturalLanguage uses the dominant character n-grams across the whole prefix and picks the majority language. Confidence drops below 1.0 -- the lower the number, the more mixed the input.",
+      "from_lang": "auto",
+      "to_lang": null,
+      "text": "Dieser Abschnitt ist hauptsächlich auf Deutsch geschrieben, enthält aber den englischen Satz \"the rain in Spain stays mainly in the plain\" als Zitat. Anschließend folgt wieder eine längere deutsche Erklärung, damit die Sprachstatistik klar überwiegt.",
+      "translate_args": ["--detect-only", "--quiet"]
+    },
+    {
+      "id": "detect-mixed-fr-en-es",
+      "title": "Mixed - French majority with English and Spanish",
+      "year": 2026,
+      "category": "detect",
+      "license": "CC0 (composed for this site)",
+      "source": "https://github.com/Arthur-Ficial/translate-web",
+      "filename": "detect-mixed-fr-en-es.txt",
+      "blurb": "Three Romance/Germanic languages in one paragraph. The detector sees them all but picks the dominant by character distribution. Lower confidence reflects the noise.",
+      "from_lang": "auto",
+      "to_lang": null,
+      "text": "Voici un paragraphe principalement en français qui présente quelques mots en anglais comme \"hello world\" et un peu d'espagnol comme \"buenos días, amigos\". Ensuite la prose française reprend pour s'assurer que cette langue reste majoritaire dans le texte.",
+      "translate_args": ["--detect-only", "--quiet", "--langs", "fr,en,es"]
+    },
+    {
+      "id": "detect-shorthints",
+      "title": "Detection hints - constrain ambiguous short input",
+      "year": 2026,
+      "category": "detect",
+      "license": "CC0 (composed for this site)",
+      "source": "https://github.com/Arthur-Ficial/translate-web",
+      "filename": "detect-shorthints.txt",
+      "blurb": "Short ambiguous strings produce low confidence (or get rejected with a usage error). Pass --langs to constrain detection to the languages your domain actually expects -- the model picks the best candidate from that set.",
+      "from_lang": "auto",
+      "to_lang": null,
+      "text": "Hello world this is enough for detection",
+      "translate_args": ["--detect-only", "--quiet", "--langs", "de,en,fr,es,it"]
     }
   ]
 }

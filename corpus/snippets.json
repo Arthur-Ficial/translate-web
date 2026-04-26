@@ -1,0 +1,148 @@
+{
+  "cli": [
+    {
+      "id": "echo-de-en",
+      "label": "Pipe German to English",
+      "shell": "echo \"Hallo Welt.\" | translate --to en --from de --no-install --quiet"
+    },
+    {
+      "id": "detect-fr",
+      "label": "Detect French from a sentence",
+      "shell": "translate --detect-only \"Ceci est une phrase française avec plusieurs mots.\""
+    },
+    {
+      "id": "ndjson-stream",
+      "label": "Stream paragraphs as NDJSON",
+      "shell": "printf 'Hallo Welt.\\n\\nGuten Morgen.\\n' | translate --to en --from de --no-install --quiet --format ndjson"
+    },
+    {
+      "id": "what-translate",
+      "label": "Default mode -- translate",
+      "shell": "echo \"Hallo Welt\" | translate --to en --from de --no-install --quiet"
+    },
+    {
+      "id": "what-detect",
+      "label": "Detect-only -- BCP-47 + confidence",
+      "shell": "translate --detect-only \"Det är svenska.\""
+    },
+    {
+      "id": "what-stream",
+      "label": "Stream -- ndjson per paragraph",
+      "shell": "printf 'Hallo.\\n\\nWelt.\\n' | translate --to en --from de --no-install --quiet --format ndjson"
+    },
+    {
+      "id": "args-en-de",
+      "label": "Positional argument -- English to German",
+      "shell": "translate \"hello world\" --from en --to de --no-install --quiet"
+    },
+    {
+      "id": "args-multi",
+      "label": "Multiple positional arguments",
+      "shell": "translate \"good morning\" \"see you tomorrow\" --from en --to de --no-install --quiet"
+    },
+    {
+      "id": "args-batch",
+      "label": "Batch mode over stdin lines",
+      "shell": "printf 'eins\\nzwei\\ndrei\\n' | translate --batch --to en --from de --no-install --quiet"
+    },
+    {
+      "id": "protected-spans",
+      "label": "Protected spans pass through (URLs, emails, code)",
+      "shell": "echo \"Hallo, schreibe an a@b.com oder besuche https://example.com.\" | translate --to en --from de --no-install --quiet"
+    },
+    {
+      "id": "installed-list",
+      "label": "List installed model pairs (first 6)",
+      "shell": "translate --installed | head -6"
+    },
+    {
+      "id": "version",
+      "label": "Show version",
+      "shell": "translate --version"
+    }
+  ],
+  "server": [
+    {
+      "id": "health",
+      "label": "Health check",
+      "method": "GET",
+      "path": "/health"
+    },
+    {
+      "id": "deepl-translate",
+      "label": "DeepL: translate one string (form)",
+      "method": "POST",
+      "path": "/v2/translate",
+      "form": [["text", "Hallo Welt."], ["target_lang", "EN"], ["source_lang", "DE"]]
+    },
+    {
+      "id": "deepl-batch",
+      "label": "DeepL: translate three strings in one request",
+      "method": "POST",
+      "path": "/v2/translate",
+      "form": [["text", "Hallo"], ["text", "Welt"], ["text", "Guten Morgen"], ["target_lang", "EN"], ["source_lang", "DE"]]
+    },
+    {
+      "id": "deepl-languages",
+      "label": "DeepL: language list (first 4 entries)",
+      "method": "GET",
+      "path": "/v2/languages",
+      "trim_array": 4
+    },
+    {
+      "id": "deepl-usage",
+      "label": "DeepL: usage stub",
+      "method": "GET",
+      "path": "/v2/usage"
+    },
+    {
+      "id": "libre-translate",
+      "label": "LibreTranslate: translate (JSON body)",
+      "method": "POST",
+      "path": "/translate",
+      "json": {"q": "Hallo Welt.", "source": "de", "target": "en", "format": "text"}
+    },
+    {
+      "id": "libre-translate-array",
+      "label": "LibreTranslate: array q (JSON body)",
+      "method": "POST",
+      "path": "/translate",
+      "json": {"q": ["Hallo", "Welt", "Foo"], "source": "de", "target": "en"}
+    },
+    {
+      "id": "libre-detect",
+      "label": "LibreTranslate: detect language",
+      "method": "POST",
+      "path": "/detect",
+      "json": {"q": "Das ist ein deutscher Satz mit genug Worten zum Erkennen."}
+    },
+    {
+      "id": "libre-translate-auto",
+      "label": "LibreTranslate: source=auto adds detectedLanguage",
+      "method": "POST",
+      "path": "/translate",
+      "json": {"q": "Das ist ein deutscher Satz mit genug Worten.", "source": "auto", "target": "en"}
+    },
+    {
+      "id": "google-translate",
+      "label": "Google v2: translate (form)",
+      "method": "POST",
+      "path": "/language/translate/v2",
+      "form": [["q", "Hallo Welt."], ["target", "en"], ["source", "de"]]
+    },
+    {
+      "id": "google-batch",
+      "label": "Google v2: repeated q (batch)",
+      "method": "POST",
+      "path": "/language/translate/v2",
+      "form": [["q", "Hallo"], ["q", "Welt"], ["target", "en"], ["source", "de"]]
+    },
+    {
+      "id": "google-languages",
+      "label": "Google v2: language list",
+      "method": "GET",
+      "path": "/language/translate/v2/languages",
+      "trim_languages": 4
+    }
+  ]
+}

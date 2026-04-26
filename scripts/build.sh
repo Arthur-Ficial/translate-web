@@ -291,16 +291,78 @@ for i in $(seq 0 $((count - 1))); do
     build_card "$i" >> "$TMP_BODY"
 done
 
-# Concatenate header + cards + footer, then substitute placeholders
+# Compose the raw page first, THEN substitute placeholders. Placeholder
+# values come from data/snippets/*.{cmd,out,wire} -- captured by
+# scripts/run-snippets.py against a real translate --serve. Nothing on
+# the page is hand-typed.
+RAW_PAGE=$(mktemp)
+trap 'rm -f "$TMP_BODY" "$RAW_PAGE"' EXIT
 {
   cat "$TPL/header.html"
   cat "$TMP_BODY"
   cat "$TPL/footer.html"
-} | sed \
-    -e "s|__VERSION__|$VERSION|g" \
-    -e "s|__TEST_COUNT__|$TEST_COUNT|g" \
-    -e "s|__GENERATED__|$GENERATED|g" \
-  > "$SITE/index.html"
+} > "$RAW_PAGE"
+
+# Inject the captured snippets via a Python helper (sed is unsafe with
+# arbitrary JSON / quotes / newlines).
+SNIPPETS_DIR="$ROOT/data/snippets"
+python3 - "$RAW_PAGE" "$SNIPPETS_DIR" "$SITE/index.html" "$VERSION" "$TEST_COUNT" "$GENERATED" <<'PY'
+import html, pathlib, re, sys
+
+raw_path, snippets_dir, out_path, version, test_count, generated = sys.argv[1:7]
+page = pathlib.Path(raw_path).read_text()
+snip_dir = pathlib.Path(snippets_dir)
+
+def read(name: str) -> str:
+    p = snip_dir / name
+    return p.read_text() if p.is_file() else f"# missing capture: {name}"
+
+def html_escape(s: str) -> str:
+    return html.escape(s)
+
+# 1. CLI snippets -- one .cmd + .out merged into a colored shell snippet.
+for cmd_file in sorted(snip_dir.glob("cli-*.cmd")):
+    sid = cmd_file.stem.removeprefix("cli-")
+    out = read(f"cli-{sid}.out").rstrip()
+    cmd_line = read(f"cli-{sid}.cmd").rstrip()
+    rendered = (
+        '<span class="prompt">$</span> '
+        + html_escape(cmd_line.removeprefix("$ ").rstrip())
+        + "\n"
+        + '<span class="out">' + html_escape(out) + "</span>"
+    )
+    page = page.replace(f"__SNIP_CLI_{sid}__", rendered)
+
+# 2. Server snippets -- expose two placeholder shapes per id:
+#      __SNIP_CMD_<id>__   ->  the curl one-liner
+#      __SNIP_WIRE_<id>__  ->  the literal HTTP/1.1 response
+for cmd_file in sorted(snip_dir.glob("server-*.cmd")):
+    sid = cmd_file.stem.removeprefix("server-")
+    cmd = read(f"server-{sid}.cmd").rstrip()
+    wire = read(f"server-{sid}.wire").rstrip()
+    page = page.replace(f"__SNIP_CMD_{sid}__", html_escape(cmd))
+    page = page.replace(f"__SNIP_WIRE_{sid}__", html_escape(wire))
+
+# 3. Compose the "Watch it work" terminal body from a curated CLI subset.
+term_ids = ["echo-de-en", "args-en-de", "detect-fr", "ndjson-stream", "args-batch", "version"]
+term_lines = []
+for sid in term_ids:
+    cmd = read(f"cli-{sid}.cmd").rstrip().removeprefix("$ ")
+    out = read(f"cli-{sid}.out").rstrip()
+    term_lines.append(
+        '<span class="prompt">$</span> ' + html_escape(cmd) + "\n"
+        '<span class="out">' + html_escape(out) + "</span>"
+    )
+page = page.replace("__SNIP_TERM_BODY__", "\n\n".join(term_lines))
+
+# 4. Final scalar substitutions.
+page = (page
+    .replace("__VERSION__", version)
+    .replace("__TEST_COUNT__", test_count)
+    .replace("__GENERATED__", generated))
+
+pathlib.Path(out_path).write_text(page)
+PY
 
 echo ""
 echo "translate-web: site built at $SITE/index.html"

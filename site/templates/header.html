@@ -488,6 +488,72 @@
     .what-card pre .flag { color: var(--amber-400); }
     .what-card pre .dim { color: var(--term-dim); }
 
+    /* ============== REAL API TRAFFIC ============== */
+    .api-traffic { background: var(--cream); }
+    .api-group-title {
+      max-width: 1080px; margin: 56px auto 18px;
+      font-family: var(--font-display);
+      font-size: 22px; font-weight: 700;
+      color: var(--gray-900);
+      letter-spacing: -0.01em;
+      display: flex; align-items: center; gap: 12px;
+    }
+    .api-group-title:first-of-type { margin-top: 0; }
+    .api-tag {
+      font-family: var(--font-mono); font-size: 12px;
+      font-weight: 700; letter-spacing: 0.04em;
+      padding: 3px 10px; border-radius: 4px;
+      color: white;
+    }
+    .api-tag.deepl { background: var(--teal-700); }
+    .api-tag.libre { background: var(--indigo-500); }
+    .api-tag.google { background: #B45309; }
+    .api-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 18px;
+      max-width: 1080px; margin: 0 auto 24px;
+    }
+    @media (max-width: 720px) { .api-grid { grid-template-columns: 1fr; } }
+    .api-tile {
+      background: white;
+      border: 1px solid var(--gray-200);
+      border-radius: 12px;
+      padding: 18px 20px;
+      min-width: 0;
+      overflow: hidden;
+    }
+    .api-tile-label {
+      font-family: var(--font-mono);
+      font-size: 12px; font-weight: 600;
+      color: var(--gray-700);
+      letter-spacing: 0.02em;
+      margin-bottom: 10px;
+      word-break: break-word;
+    }
+    .api-cmd, .api-wire {
+      background: var(--term-bg);
+      color: var(--term-text);
+      border-radius: 8px;
+      padding: 12px 14px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      line-height: 1.55;
+      max-width: 100%;
+      overflow-x: auto;
+      white-space: pre;
+      margin-bottom: 0;
+    }
+    .api-cmd { background: #0E2C25; }
+    .api-wire { color: var(--term-text); margin-top: 8px; max-height: 320px; overflow: auto; }
+    .api-resp-label {
+      font-family: var(--font-mono); font-size: 11px;
+      color: var(--gray-500);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin: 12px 0 4px;
+    }
+
     /* ============== HOW IT WORKS ============== */
     .how { background: var(--cream); }
     .how-grid {
@@ -951,26 +1017,9 @@
     <div class="term">
       <div class="term-chrome">
         <span class="term-dot r"></span><span class="term-dot y"></span><span class="term-dot g"></span>
-        <span class="term-title">Terminal &mdash; translate</span>
+        <span class="term-title">Terminal &mdash; translate (real captures, not stubs)</span>
       </div>
-      <div class="term-body">
-<span class="prompt">$</span> echo <span class="arg">"Hallo Welt."</span> | <span class="cmd">translate</span> <span class="flag">--to</span> en
-<span class="out">Hello world.</span>
-
-<span class="prompt">$</span> <span class="cmd">translate</span> <span class="flag">--detect-only</span> <span class="arg">"Ceci est une phrase française."</span>
-<span class="out">fr	0.999</span>
-
-<span class="prompt">$</span> <span class="cmd">translate</span> <span class="flag">--to</span> en <span class="flag">--format</span> ndjson &lt; sentences.txt
-<span class="out">{"from":"de","to":"en","src":"Hallo Welt.","dst":"Hello world.","conf":1}
-{"from":"de","to":"en","src":"Guten Morgen.","dst":"Good morning.","conf":1}</span>
-
-<span class="prompt">$</span> <span class="cmd">translate</span> <span class="flag">--serve</span> <span class="flag">--port</span> 8989 <span class="dim"># DeepL/LibreTranslate/Google v2</span>
-
-<span class="prompt">$</span> curl <span class="flag">-X</span> POST localhost:8989/v2/translate <span class="dim"># DeepL drop-in</span>
-       <span class="flag">--data-urlencode</span> <span class="arg">"text=Hallo"</span>
-       <span class="flag">--data-urlencode</span> <span class="arg">"target_lang=EN"</span>
-<span class="out">{"translations":[{"detected_source_language":"DE","text":"Hello","billed_characters":5}]}</span>
-      </div>
+      <div class="term-body">__SNIP_TERM_BODY__</div>
     </div>
   </div>
 </section>
@@ -1021,24 +1070,21 @@
         <h3>Translate</h3>
         <div class="what-flag">translate --to en</div>
         <p>The default mode. Reads stdin (or positional args, or <code>--file</code>), detects the source language, runs Apple's on-device Translation framework, writes the result to stdout.</p>
-        <pre><span class="cmd">$</span> echo <span class="flag">"Hallo Welt"</span> | translate <span class="flag">--to</span> en
-<span class="out">Hello world.</span></pre>
+        <pre>__SNIP_CLI_what-translate__</pre>
       </div>
 
       <div class="what-card">
         <h3>Detect</h3>
         <div class="what-flag">translate --detect-only</div>
         <p>Identify the language without translating. Returns BCP-47 code and confidence (0..1) via Apple's NaturalLanguage framework. Use it to route text to the right downstream pipeline.</p>
-        <pre><span class="cmd">$</span> translate <span class="flag">--detect-only</span> <span class="flag">"Det är svenska."</span>
-<span class="out">sv	0.999</span></pre>
+        <pre>__SNIP_CLI_what-detect__</pre>
       </div>
 
       <div class="what-card">
         <h3>Stream</h3>
         <div class="what-flag">translate --batch | --format ndjson</div>
         <p>Pipe arbitrary-size text through. Paragraph-mode buffers full paragraphs; <code>--batch</code> treats each line as an independent unit. URLs, emails, and code spans pass through untranslated.</p>
-        <pre><span class="cmd">$</span> translate <span class="flag">--to</span> en <span class="flag">--format</span> ndjson &lt; in.txt
-<span class="out">{"from":"de","to":"en","src":"...","dst":"..."}</span></pre>
+        <pre>__SNIP_CLI_what-stream__</pre>
       </div>
 
       <div class="what-card">
@@ -1046,7 +1092,104 @@
         <div class="what-flag">translate --serve</div>
         <p>HTTP server byte-compatible with three production translation APIs. The official <code>deepl</code> Python SDK, <code>libretranslatepy</code>, and any Google v2 REST client work unchanged - just override the base URL.</p>
         <pre><span class="cmd">$</span> translate <span class="flag">--serve</span> <span class="flag">--port</span> 8989
-<span class="out">translate: serving on http://127.0.0.1:8989</span></pre>
+<span class="out">translate: serving on http://127.0.0.1:8989</span>
+
+See the next section for real wire traffic.</pre>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================== REAL SERVER TRAFFIC ============================== -->
+<section class="api-traffic" id="apis">
+  <div class="container">
+    <div class="section-header">
+      <span class="eyebrow">Real wire traffic</span>
+      <h2>The DeepL, LibreTranslate, and Google v2 surfaces.</h2>
+      <p>Every request and response below was captured at build time by running <code>translate --serve</code> on a free port and hitting it with <code>curl</code>. No paraphrasing, no pseudo-code -- the bytes the server sent are the bytes you see.</p>
+    </div>
+
+    <h3 class="api-group-title"><span class="api-tag deepl">DeepL v2</span> compatible</h3>
+    <div class="api-grid">
+      <div class="api-tile">
+        <div class="api-tile-label">POST /v2/translate -- single string</div>
+        <pre class="api-cmd">__SNIP_CMD_deepl-translate__</pre>
+        <div class="api-resp-label">HTTP/1.1 response</div>
+        <pre class="api-wire">__SNIP_WIRE_deepl-translate__</pre>
+      </div>
+      <div class="api-tile">
+        <div class="api-tile-label">POST /v2/translate -- batch (3 strings)</div>
+        <pre class="api-cmd">__SNIP_CMD_deepl-batch__</pre>
+        <div class="api-resp-label">HTTP/1.1 response</div>
+        <pre class="api-wire">__SNIP_WIRE_deepl-batch__</pre>
+      </div>
+      <div class="api-tile">
+        <div class="api-tile-label">GET /v2/languages</div>
+        <pre class="api-cmd">__SNIP_CMD_deepl-languages__</pre>
+        <div class="api-resp-label">HTTP/1.1 response (truncated)</div>
+        <pre class="api-wire">__SNIP_WIRE_deepl-languages__</pre>
+      </div>
+      <div class="api-tile">
+        <div class="api-tile-label">GET /v2/usage</div>
+        <pre class="api-cmd">__SNIP_CMD_deepl-usage__</pre>
+        <div class="api-resp-label">HTTP/1.1 response</div>
+        <pre class="api-wire">__SNIP_WIRE_deepl-usage__</pre>
+      </div>
+    </div>
+
+    <h3 class="api-group-title"><span class="api-tag libre">LibreTranslate</span> compatible</h3>
+    <div class="api-grid">
+      <div class="api-tile">
+        <div class="api-tile-label">POST /translate -- JSON body</div>
+        <pre class="api-cmd">__SNIP_CMD_libre-translate__</pre>
+        <div class="api-resp-label">HTTP/1.1 response</div>
+        <pre class="api-wire">__SNIP_WIRE_libre-translate__</pre>
+      </div>
+      <div class="api-tile">
+        <div class="api-tile-label">POST /translate -- array q</div>
+        <pre class="api-cmd">__SNIP_CMD_libre-translate-array__</pre>
+        <div class="api-resp-label">HTTP/1.1 response</div>
+        <pre class="api-wire">__SNIP_WIRE_libre-translate-array__</pre>
+      </div>
+      <div class="api-tile">
+        <div class="api-tile-label">POST /translate -- source=auto includes detectedLanguage</div>
+        <pre class="api-cmd">__SNIP_CMD_libre-translate-auto__</pre>
+        <div class="api-resp-label">HTTP/1.1 response</div>
+        <pre class="api-wire">__SNIP_WIRE_libre-translate-auto__</pre>
+      </div>
+      <div class="api-tile">
+        <div class="api-tile-label">POST /detect</div>
+        <pre class="api-cmd">__SNIP_CMD_libre-detect__</pre>
+        <div class="api-resp-label">HTTP/1.1 response</div>
+        <pre class="api-wire">__SNIP_WIRE_libre-detect__</pre>
+      </div>
+    </div>
+
+    <h3 class="api-group-title"><span class="api-tag google">Google Translate v2</span> compatible</h3>
+    <div class="api-grid">
+      <div class="api-tile">
+        <div class="api-tile-label">POST /language/translate/v2 -- single q (form)</div>
+        <pre class="api-cmd">__SNIP_CMD_google-translate__</pre>
+        <div class="api-resp-label">HTTP/1.1 response</div>
+        <pre class="api-wire">__SNIP_WIRE_google-translate__</pre>
+      </div>
+      <div class="api-tile">
+        <div class="api-tile-label">POST /language/translate/v2 -- repeated q (batch)</div>
+        <pre class="api-cmd">__SNIP_CMD_google-batch__</pre>
+        <div class="api-resp-label">HTTP/1.1 response</div>
+        <pre class="api-wire">__SNIP_WIRE_google-batch__</pre>
+      </div>
+      <div class="api-tile">
+        <div class="api-tile-label">GET /language/translate/v2/languages</div>
+        <pre class="api-cmd">__SNIP_CMD_google-languages__</pre>
+        <div class="api-resp-label">HTTP/1.1 response (truncated)</div>
+        <pre class="api-wire">__SNIP_WIRE_google-languages__</pre>
+      </div>
+      <div class="api-tile">
+        <div class="api-tile-label">GET /health (any client, any time)</div>
+        <pre class="api-cmd">__SNIP_CMD_health__</pre>
+        <div class="api-resp-label">HTTP/1.1 response</div>
+        <pre class="api-wire">__SNIP_WIRE_health__</pre>
       </div>
     </div>
   </div>
