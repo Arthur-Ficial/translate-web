@@ -1,0 +1,5 @@
+# translate-web - Project Instructions
+
+## The Golden Goal
+
+translate-web is the showcase and landing site for the `translate` tool (Apple's Translation framework as a UNIX CLI plus a drop-in DeepL/LibreTranslate/Google v2 HTTP server), live at translate.franzai.com. Its ONE ultimate purpose is to make a new visitor understand and trust `translate` in seconds: a mobile-first landing page where every showcase card is generated at build time from a real `translate` binary run against an auto-generated public-domain (CC0) test corpus - nothing mocked. Because the build invokes the real binary, the site doubles as a continuous battle test for the apfel ecosystem's translation surface: if `translate` breaks, the build fails. It IS a static showcase site (corpus manifest, fetch/run/build scripts, a single generated `site/index.html` with inline CSS/JS, deployed to Cloudflare Pages). It is NOT the `translate` tool itself - that lives in Arthur-Ficial/translate; this repo only demonstrates it and never reimplements translation logic.
